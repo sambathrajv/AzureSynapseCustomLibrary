@@ -1,0 +1,38 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+strategy:
+  matrix:
+    Python27:
+      python.version: "2.7"
+    Python35:
+      python.version: "3.5"
+    Python36:
+      python.version: "3.6"
+    Python37:
+      python.version: "3.7"
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "$(python.version)"
+    displayName: "Use Python $(python.version)"
+  - task: CmdLine@2
+    displayName: Install dependencies
+    inputs:
+      script: "python -m pip install --upgrade pip \npip install pytest requests setuptools wheel\n"
+  - task: CmdLine@2
+    displayName: Build sdist
+    inputs:
+      script: >
+        python setup.py sdist bdist_wheel
+
+        python setup.py bdist_egg
+      workingDirectory: /
